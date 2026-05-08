@@ -25,8 +25,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     // 如果没有配置 Supabase，直接设置为游客模式
     if (!supabase) {
-      const guestMode = localStorage.getItem("guest_mode");
-      setIsGuest(guestMode === "true" || !guestMode); // 默认游客模式
+      if (typeof window !== "undefined") {
+        const guestMode = localStorage.getItem("guest_mode");
+        setIsGuest(guestMode === "true" || !guestMode); // 默认游客模式
+      } else {
+        setIsGuest(true); // 服务端默认游客模式
+      }
       setLoading(false);
       return;
     }
