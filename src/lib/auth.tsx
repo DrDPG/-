@@ -23,23 +23,46 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
 
   useEffect(() => {
+    let mounted = true;
+
+    // 超时保护：3秒后强制加载完成
+    const timeoutId = setTimeout(() => {
+      if (mounted && loading) {
+        setLoading(false);
+        setIsGuest(true);
+      }
+    }, 3000);
+
     // 如果没有配置 Supabase，直接设置为游客模式
     if (!supabase) {
       if (typeof window !== "undefined") {
         const guestMode = localStorage.getItem("guest_mode");
-        setIsGuest(guestMode === "true" || !guestMode); // 默认游客模式
+        setIsGuest(guestMode === "true" || !guestMode);
       } else {
-        setIsGuest(true); // 服务端默认游客模式
+        setIsGuest(true);
       }
       setLoading(false);
+      clearTimeout(timeoutId);
       return;
     }
 
     // 检查会话
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
-      setLoading(false);
-    });
+    supabase.auth.getSession()
+      .then(({ data: { session } }) => {
+        if (mounted) {
+          setUser(session?.user ?? null);
+          setLoading(false);
+          clearTimeout(timeoutId);
+        }
+      })
+      .catch(() => {
+        // 出错时也设置为游客模式
+        if (mounted) {
+          setIsGuest(true);
+          setLoading(false);
+          clearTimeout(timeoutId);
+        }
+      });
 
     // 检查游客模式
     if (typeof window !== "undefined") {
@@ -51,16 +74,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-      if (!session && !isGuest) {
-        // 用户退出登录，清除游客模式
-        localStorage.removeItem("guest_mode");
-        setIsGuest(false);
+      if (mounted) {
+        setUser(session?.user ?? null);
       }
     });
 
-    return () => subscription.unsubscribe();
-  }, [isGuest]);
+    return () => {
+      mounted = false;
+      clearTimeout(timeoutId);
+      subscription.unsubscribe();
+    };
+  }, []);
 
   const signIn = async (email: string, password: string) => {
     const sb = supabase;
