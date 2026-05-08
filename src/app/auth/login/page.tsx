@@ -25,9 +25,15 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
+      const sb = supabase;
+      if (!sb) {
+        setError("请先配置 Supabase");
+        return;
+      }
+
       if (isSignUp) {
         // 注册
-        const { data, error: signUpError } = await supabase.auth.signUp({
+        const { data, error: signUpError } = await sb.auth.signUp({
           email,
           password,
           options: {
@@ -45,7 +51,7 @@ export default function LoginPage() {
         }
       } else {
         // 登录
-        const { error: signInError } = await supabase.auth.signInWithPassword({
+        const { error: signInError } = await sb.auth.signInWithPassword({
           email,
           password,
         });
