@@ -59,8 +59,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [isGuest]);
 
   const signIn = async (email: string, password: string) => {
-    if (!supabase) throw new Error("请先配置 Supabase");
-    const { error } = await supabase.auth.signInWithPassword({
+    const sb = supabase;
+    if (!sb) throw new Error("请先配置 Supabase");
+    const { error } = await sb.auth.signInWithPassword({
       email,
       password,
     });
@@ -68,8 +69,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signUp = async (email: string, password: string, fullName?: string) => {
-    if (!supabase) throw new Error("请先配置 Supabase");
-    const { error } = await supabase.auth.signUp({
+    const sb = supabase;
+    if (!sb) throw new Error("请先配置 Supabase");
+    const { error } = await sb.auth.signUp({
       email,
       password,
       options: {
