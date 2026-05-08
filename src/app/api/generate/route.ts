@@ -144,7 +144,7 @@ ${plotInstruction}
   }
 }
 
-function parseResponse(content: string, chapterNumber: number): { content: string; choices: string[]; title: string } {
+function parseResponse(content: string, chapterNumber: number): { content: string; choices: string[]; title: string; summary?: string } {
   // 提取标题 - 支持多种格式
   let title = `第${chapterNumber}章`;
   const titlePatterns = [
