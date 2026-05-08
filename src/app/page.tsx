@@ -152,10 +152,8 @@ export default function Home() {
           <div className="flex items-center gap-3">
             {user ? (
               <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" className="border-gray-300 text-gray-600 hover:bg-gray-100">
-                    {user.email?.split("@")[0]}
-                  </Button>
+                <DropdownMenuTrigger className="px-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-600 hover:bg-gray-100 cursor-pointer text-sm">
+                  {user.email?.split("@")[0]}
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-48">
                   <DropdownMenuLabel>我的账号</DropdownMenuLabel>
