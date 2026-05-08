@@ -53,7 +53,12 @@ export default function LibraryPage() {
     if (!confirm("确定要删除这个故事吗？")) return;
 
     try {
-      await supabase.from("stories").delete().eq("id", storyId);
+      const sb = supabase;
+      if (!sb) {
+        alert("删除功能需要配置数据库");
+        return;
+      }
+      await sb.from("stories").delete().eq("id", storyId);
       setStories(stories.filter(s => s.id !== storyId));
     } catch (error) {
       console.error("删除失败:", error);
